@@ -1,112 +1,35 @@
 ```{r}
 library(genius)
 library(dplyr)
-
-```
-
-```{r}
-library(genius)
-library(rvest)
 library(tidyverse)
-url <- "https://www.billboard.com/charts/year-end/top-billboard-200-albums"
-albums <- url %>%
-  read_html() %>% 
-  html_nodes(xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "ye-chart-item--expanded", " " ))]//a | //*[contains(concat( " ", @class, " " ), concat( " ", "ye-chart-item__title", " " ))]') %>% 
-  html_text() %>% 
-  str_remove_all("\n")
-albums
+library(rvest)
 ```
+
 
 ```{r}
 url <- "https://www.billboard.com/charts/year-end/top-billboard-200-albums"
-albums2 <- url %>%
+billboard <- url %>%
   read_html() %>% 
   html_nodes(xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "ye-chart-item__text", " " ))]//div') %>% 
   html_text() %>% 
   str_remove_all("\n")
-albums2
+
+albums <- billboard[c(seq(1, 399, by = 2))]
+artists <- billboard[c(seq(2,400, by = 2))]
+final_billboard <- data.frame(Albums = albums, Artists = artists)
 ```
-
-
-
-
-
-
-//*[@id="main"]/div[5]/div/div[1]/div[2]/article[1]/div[1]/div[3]/div[2]/a
-
-//*[@id="main"]/div[5]/div/div[1]/div[2]/article[2]/div[1]/div[3]/div[2]/a
-
-//*[@id="main"]/div[5]/div/div[1]/div[2]/article[3]/div[1]/div[3]/div[2]
-
-//*[@id="main"]/div[5]/div/div[1]/div[2]/article[4]/div[1]/div[3]/div[2]/a
-
-//*[@id="main"]/div[5]/div/div[17]/div/article[10]/div[1]/div[3]/div[2]
-```{r}
-
-for (i in 1:10){
-  path <- paste0('//*[@id="main"]/div[5]/div/div[1]/div[2]/article[', i, ']/div[1]/div[3]/div[2]/a')
-  url %>% 
-    read_html() %>% 
-    html_nodes(xpath =path) %>%
-    html_text() %>% 
-    str_remove_all("\n") %>% 
-    print()
-  }
-```
-
-```{r}
-artists <- vector()
-for (i in 1:200){
-  path <- paste0('//*[@id="main"]/div[5]/div/div[1]/div[2]/article[', i, ']/div[1]/div[3]/div[2]')
-  a <- url %>% 
-    read_html() %>% 
-    html_nodes(xpath =path) %>%
-    html_text() %>% 
-    str_remove_all("\n") 
-  artists <-  c(artists, a)
-  }
-```
-
-
-//*[@id="main"]/div[5]/div/div[3]/div/article[1]/div[1]/div[3]/div[2]/a
-
-
-//*[@id="main"]/div[5]/div/div[7]/div/article[19]/div[1]/div[3]/div[2]
-
-```{r}
-a <- url %>% 
-    read_html() %>% 
-    html_nodes(xpath = '//*[@id="main"]/div[5]/div/div[1]/div[2]/article[21]/div[1]/div[3]/div[2]/a') %>%
-    html_text() %>% 
-    str_remove_all("\n") 
-a
-```
-
 
 
 ```{r}
-artists <- url %>% 
-  read_html() %>% 
-  html_nodes('.chart-details__left-rail:nth-child(19) .ye-chart-item__artist , .chart-details__left-rail:nth-child(17) .piano-content-overlay__gated-item:nth-child(3) .ye-chart-item__artist , .chart-details__left-rail:nth-child(15) .ye-chart-item__artist , .chart-details__left-rail:nth-child(13) .piano-content-overlay__gated-item:nth-child(16) .ye-chart-item__artist , .ad-holder--m+ .piano-content-overlay__gated-item .ye-chart-item__artist , .piano-content-overlay__gated-item+ .piano-content-overlay__gated-item:nth-child(6) .ye-chart-item__artist , .chart-details__left-rail:nth-child(13) .piano-content-overlay__gated-item:nth-child(4) .ye-chart-item__artist , .chart-details__left-rail:nth-child(11) .piano-content-overlay__gated-item:nth-child(14) .ye-chart-item__artist , .piano-content-overlay__gated-item:nth-child(10) .ye-chart-item__artist , .piano-content-overlay__gated-item:nth-child(9) .ye-chart-item__artist , .chart-details__left-rail:nth-child(3) .piano-content-overlay__gated-item:nth-child(3) .ye-chart-item__artist , .piano-content-overlay__gated-item:nth-child(20) .ye-chart-item__artist , .chart-details__left-rail:nth-child(7) .ye-chart-item__artist , .piano-content-overlay__gated-item:nth-child(5) .ye-chart-item__artist , .piano-content-overlay__gated-item:nth-child(2) .ye-chart-item__artist , .chart-year-selection__wrapper+ .chart-details__item-list .piano-content-overlay__gated-item:nth-child(21) .ye-chart-item__artist , .chart-year-selection__wrapper+ .chart-details__item-list .ye-chart-item:nth-child(3) .ye-chart-item__artist , .ye-chart-item__artist a') %>%
-  html_text() %>% 
-  str_remove_all("\n") %>% 
-  unique()
-artists 
+album_list <- list()
+
+for (i in 1:3){
+  album_list[[i]] <- possible_album(artist = final_billboard$Artists[i], final_billboard$Albums[i]) %>% 
+    as.data.frame()
+}
 ```
 
 ```{r}
-artists
+possible_album(artist = "Ariana Grande", album = "Thank U, Next")
 ```
-
-
-
-
-
-```{r}
-df <- data.frame (album = albums, artist = artists)
-```
-
-
-
-
 
