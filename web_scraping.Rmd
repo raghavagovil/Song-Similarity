@@ -1,3 +1,4 @@
+
 ```{r}
 library(genius)
 library(dplyr)
@@ -5,6 +6,7 @@ library(tidyverse)
 library(rvest)
 ```
 
+## Scraping Top 200 Billboard 2019
 
 ```{r}
 url <- "https://www.billboard.com/charts/year-end/top-billboard-200-albums"
@@ -19,17 +21,57 @@ artists <- billboard[c(seq(2,400, by = 2))]
 final_billboard <- data.frame(Albums = albums, Artists = artists)
 ```
 
-
-```{r}
+## Scraping lyrics for Top 200 Billboard 2019 from Genius
+```{r, warning=FALSE}
 album_list <- list()
 
-for (i in 1:3){
+for (i in 1:nrow(final_billboard)){
   album_list[[i]] <- possible_album(artist = final_billboard$Artists[i], final_billboard$Albums[i]) %>% 
     as.data.frame()
 }
 ```
 
+
 ```{r}
-possible_album(artist = "Ariana Grande", album = "Thank U, Next")
+for (i in 1:length(album_list)){
+  album_list[[i]]$album_title <- rep(final_billboard[i,1], nrow(album_list[[i]]))
+  album_list[[i]]$artist <- rep(final_billboard[i,2], nrow(album_list[[i]]))
+  
+}
 ```
+
+
+
+```{r}
+album_df <- bind_rows(album_list)
+```
+## Feature Engineering
+1. Meta Data - Track Title, Genre, Subgenre, Primary Artist, Featured Artists, Composer, Publisher, Producers, Additional Contributors, ISRC, Explicit Content, Lyrics publisher, Composition Owner, Year of Composition, Master Recording Owner, Year of Recording, Release Language
+
+2. 
+```{r}
+write.csv(album_df, file = "album_lyrics_v1.csv")
+```
+
+
+```{r}
+clean_album_df <- album_df %>% group_by(track_title,  album_title) %>% summarise (lyrics = paste(lyric, collapse=", "))
+```
+
+
+```{r}
+album_and_artist <- album_df %>% select (album_title, artist) %>% distinct()
+#album_and_artist
+```
+
+```{r}
+final <- merge (album_and_artist, clean_album_df, by = "album_title") 
+```
+
+```{r}
+write.csv(final, file = "FINAL_v1.csv")
+```
+
+
+
 
