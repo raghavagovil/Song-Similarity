@@ -1,0 +1,50 @@
+---
+title: "Untitled"
+author: "Nikhil Sharma"
+date: "5/27/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+setwd("~/Documents/Song-Similarity/")
+spotify <- read_csv("subset_spotify.csv")
+lyrics <- read_csv("subset_lyrics.csv")
+```
+
+```{r}
+spotify$track_title <- enc2utf8(spotify$track_title)
+
+spotify$album_title <- enc2utf8(spotify$album_title)
+
+```
+
+
+```{r}
+merge(spotify, lyrics, by = c("album_title", "track_title")) %>% write.csv("subset_merged.csv")
+```
+
+
+
+```{r}
+song_title_lyrics <- lyrics[2,4] %>% as.character()
+song_title_spotify <- spotify[4,5] %>% as.character()
+
+
+for (i in 1:nchar(song_title_spotify)){
+  print (substr(song_title_lyrics, i, i) == substr(song_title_spotify, i, i))
+  print (substr(song_title_lyrics, i, i))
+  
+}
+```
+
+```{r}
+for (i in 1:nchar(song_title_spotify)){
+  print (str_detect(substr(song_title_lyrics, i, i), " "))
+}
+```
+
+
+
+
+
